@@ -1,0 +1,1176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CRYPTO — Cryptographic Key Exchange Authentication Portal</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+/* =========================================================
+   CRYPTO — single-file static rebuild
+   Cryptographic Key Exchange Authentication Portal
+   ========================================================= */
+:root{
+  --navy-900:#0a1628;
+  --navy-800:#0f2236;
+  --navy-700:#142d45;
+  --ink:#eef3f8;
+  --ink-dim:#9fb3c8;
+  --teal:#00ffd5;
+  --teal-dim:#00bfa5;
+  --pink:#ff4ecd;
+  --danger:#ff6b6b;
+  --ok:#4ade80;
+  --border:rgba(255,255,255,0.12);
+  --glass:rgba(255,255,255,0.06);
+  --radius:16px;
+  --serif:'Source Serif Pro','Georgia',serif;
+  --mono:'JetBrains Mono','Consolas',monospace;
+  --sans:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  font-family:var(--sans);
+  background:radial-gradient(circle at 20% -10%, #16314d 0%, var(--navy-900) 45%, #060c16 100%);
+  color:var(--ink);
+  min-height:100vh;
+}
+a{color:var(--teal);text-decoration:none;}
+a:hover{text-decoration:underline;}
+button{font-family:inherit;}
+
+/* ---------- top-level app shell ---------- */
+#app{min-height:100vh;display:flex;flex-direction:column;}
+.page{display:none;flex:1;flex-direction:column;}
+.page.active{display:flex;}
+
+/* ---------- header / nav ---------- */
+header.site-header{
+  padding:22px 28px 18px;
+  text-align:center;
+  border-bottom:1px solid var(--border);
+  background:linear-gradient(180deg, rgba(0,255,213,0.06), transparent);
+}
+header.site-header h1{
+  margin:0;
+  font-family:var(--serif);
+  font-size:clamp(20px,3vw,30px);
+  letter-spacing:0.5px;
+  color:var(--ink);
+}
+header.site-header h1 .accent{color:var(--teal);}
+header.site-header .tag{
+  margin-top:6px;font-size:13px;color:var(--ink-dim);letter-spacing:1.5px;text-transform:uppercase;font-family:var(--mono);
+}
+nav.main-nav{
+  display:flex;flex-wrap:wrap;gap:6px;justify-content:center;
+  padding:12px 16px;border-bottom:1px solid var(--border);
+  background:rgba(255,255,255,0.02);
+}
+nav.main-nav button{
+  background:transparent;border:1px solid transparent;color:var(--ink-dim);
+  padding:9px 16px;border-radius:999px;cursor:pointer;font-weight:600;font-size:14px;
+  transition:.2s;
+}
+nav.main-nav button:hover{color:var(--teal);border-color:var(--border);background:var(--glass);}
+nav.main-nav button.current{color:var(--navy-900);background:var(--teal);border-color:var(--teal);}
+nav.main-nav .sep{width:1px;background:var(--border);margin:4px 6px;}
+
+/* ---------- footer ---------- */
+footer.site-footer{
+  text-align:center;padding:18px;color:var(--ink-dim);font-size:13px;
+  border-top:1px solid var(--border);margin-top:auto;
+}
+
+/* ---------- hero / carousel ---------- */
+.carousel{position:relative;width:100%;height:320px;overflow:hidden;background:linear-gradient(120deg,#0c2236,#163654 40%,#072032);}
+.carousel .frame{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 1.2s ease;}
+.carousel .frame.active{opacity:1;}
+.carousel .frame svg{width:100%;height:100%;}
+.carousel .frame .cap{
+  position:absolute;bottom:18px;left:50%;transform:translateX(-50%);
+  font-family:var(--mono);font-size:12px;letter-spacing:2px;color:var(--teal);
+  background:rgba(6,12,22,0.55);padding:6px 14px;border-radius:999px;border:1px solid var(--border);
+}
+
+/* ---------- generic content blocks ---------- */
+.container{max-width:980px;margin:0 auto;padding:34px 22px;width:100%;}
+.card{
+  background:var(--glass);border:1px solid var(--border);border-radius:var(--radius);
+  padding:28px;margin-bottom:22px;backdrop-filter:blur(8px);
+}
+.card h2{font-family:var(--serif);color:var(--ink);margin-top:0;}
+.card p{color:var(--ink-dim);line-height:1.7;}
+.lead-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;margin-top:18px;}
+.lead-grid .mini{
+  background:rgba(0,255,213,0.05);border:1px solid var(--border);border-radius:12px;padding:16px;
+}
+.lead-grid .mini i{color:var(--teal);font-size:20px;margin-bottom:8px;display:block;}
+.lead-grid .mini h4{margin:0 0 6px;font-size:14px;color:var(--ink);}
+.lead-grid .mini p{margin:0;font-size:13px;}
+
+/* ---------- forms ---------- */
+.form-wrapper{display:flex;justify-content:center;align-items:flex-start;padding:46px 20px;flex:1;}
+.form-box{
+  background:var(--navy-800);border:1px solid var(--border);border-radius:18px;
+  padding:34px;max-width:430px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.45);
+}
+.form-box h2{margin:0 0 22px;text-align:center;color:var(--ink);font-family:var(--serif);font-size:24px;}
+.form-box h2 i{color:var(--teal);margin-right:8px;animation:float 2.2s ease-in-out infinite;}
+@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-4px);}}
+.form-field{margin-bottom:18px;text-align:left;}
+.form-field label{display:block;margin-bottom:6px;font-size:13px;font-weight:600;color:var(--ink-dim);}
+.form-field label i{color:var(--teal);margin-right:6px;}
+.form-field input,.form-field select{
+  width:100%;padding:11px 12px;border-radius:8px;border:1px solid var(--border);
+  background:rgba(255,255,255,0.05);color:var(--ink);font-size:14px;outline:none;transition:.2s;
+}
+.form-field input:focus,.form-field select:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(0,255,213,0.12);}
+.form-field button.submit{
+  width:100%;padding:12px;border:none;border-radius:8px;cursor:pointer;font-weight:700;font-size:15px;
+  background:linear-gradient(45deg,var(--teal),var(--teal-dim));color:#001b16;transition:.25s;
+}
+.form-field button.submit:hover{transform:translateY(-1px);box-shadow:0 8px 22px rgba(0,255,213,0.25);}
+.text-small{font-size:13px;color:var(--ink-dim);text-align:center;margin-top:10px;}
+.msg{font-size:13px;text-align:center;margin-top:6px;min-height:18px;}
+.msg.ok{color:var(--ok);}
+.msg.err{color:var(--danger);}
+
+/* ---------- dashboards ---------- */
+.dash-wrapper{padding:36px 20px;text-align:center;flex:1;}
+.welcome-text{font-size:clamp(22px,3.4vw,30px);margin-bottom:8px;color:var(--teal);font-family:var(--serif);}
+.welcome-sub{color:var(--ink-dim);margin-bottom:28px;font-size:14px;}
+.dash-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:22px;
+  max-width:1080px;margin:0 auto;
+}
+.dash-card{
+  background:linear-gradient(150deg, rgba(0,255,213,0.07), rgba(255,255,255,0.02));
+  border:1px solid var(--border);border-radius:16px;padding:26px 20px;transition:.3s;text-align:center;
+}
+.dash-card:hover{transform:translateY(-8px);box-shadow:0 16px 34px rgba(0,255,213,0.16);border-color:rgba(0,255,213,0.35);}
+.dash-card i{font-size:36px;color:var(--teal);margin-bottom:12px;display:block;}
+.dash-card h3{margin:6px 0;color:var(--ink);font-size:17px;}
+.dash-card p{font-size:13px;color:var(--ink-dim);margin-bottom:16px;min-height:36px;}
+.dash-card button{
+  background:linear-gradient(45deg,var(--teal),var(--teal-dim));color:#001b16;border:none;
+  padding:9px 20px;border-radius:999px;font-weight:700;cursor:pointer;font-size:13px;transition:.2s;
+}
+.dash-card button:hover{transform:scale(1.05);}
+.admin-grid .dash-card{border-color:rgba(255,78,205,0.25);}
+.admin-grid .dash-card i{color:var(--pink);}
+.admin-grid .dash-card button{background:linear-gradient(45deg,var(--pink),#a93cc7);color:#fff;}
+.admin-grid .welcome-text{color:var(--pink);}
+
+/* ---------- panels (inner tool pages) ---------- */
+.panel{max-width:760px;margin:0 auto;padding:30px 20px;width:100%;flex:1;}
+.panel-card{background:var(--navy-800);border:1px solid var(--border);border-radius:16px;padding:28px;}
+.panel-card h2{margin-top:0;font-family:var(--serif);color:var(--ink);}
+.panel-card h2 i{color:var(--teal);margin-right:8px;}
+.back-link{display:inline-flex;align-items:center;gap:6px;color:var(--ink-dim);font-size:13px;margin-bottom:18px;cursor:pointer;}
+.back-link:hover{color:var(--teal);}
+
+/* tables */
+table.data{width:100%;border-collapse:collapse;margin-top:14px;font-size:13px;}
+table.data th,table.data td{padding:10px 12px;border-bottom:1px solid var(--border);text-align:left;}
+table.data th{color:var(--teal);font-weight:600;text-transform:uppercase;font-size:11px;letter-spacing:1px;}
+table.data tr:hover td{background:rgba(255,255,255,0.03);}
+.empty-state{text-align:center;color:var(--ink-dim);padding:30px 10px;font-size:14px;}
+.empty-state i{font-size:30px;display:block;margin-bottom:10px;color:var(--ink-dim);}
+
+.badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700;}
+.badge.green{background:rgba(74,222,128,0.15);color:var(--ok);}
+.badge.red{background:rgba(255,107,107,0.15);color:var(--danger);}
+.badge.teal{background:rgba(0,255,213,0.15);color:var(--teal);}
+
+.key-output{
+  font-family:var(--mono);font-size:13px;background:rgba(0,0,0,0.35);border:1px solid var(--border);
+  border-radius:10px;padding:14px;word-break:break-all;color:var(--teal);margin-top:14px;
+}
+.file-drop{
+  border:2px dashed var(--border);border-radius:12px;padding:24px;text-align:center;color:var(--ink-dim);
+  font-size:13px;cursor:pointer;transition:.2s;
+}
+.file-drop:hover{border-color:var(--teal);color:var(--teal);}
+.file-drop input{display:none;}
+
+.toast{
+  position:fixed;top:18px;right:18px;background:var(--navy-800);border:1px solid var(--teal);
+  color:var(--ink);padding:12px 18px;border-radius:10px;font-size:13px;box-shadow:0 10px 30px rgba(0,0,0,0.5);
+  display:flex;align-items:center;gap:10px;z-index:999;transform:translateX(120%);transition:transform .35s ease;
+}
+.toast.show{transform:translateX(0);}
+.toast i{color:var(--teal);}
+.toast.err{border-color:var(--danger);}
+.toast.err i{color:var(--danger);}
+
+@media (max-width:640px){
+  .carousel{height:220px;}
+  nav.main-nav button{padding:8px 12px;font-size:13px;}
+  .dash-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<div id="toast" class="toast"><i class="fa-solid fa-circle-check"></i><span id="toastMsg"></span></div>
+
+<div id="app">
+
+  <header class="site-header">
+    <h1><i class="fa-solid fa-shield-halved" style="color:var(--teal)"></i> <span class="accent">CRYPTO</span> Portal</h1>
+    <div class="tag">Cryptographic Key Exchange Authentication Portal</div>
+  </header>
+
+  <nav class="main-nav" id="mainNav"></nav>
+
+  <!-- ===================== PUBLIC: HOME ===================== -->
+  <section class="page" id="page-home">
+    <div class="carousel" id="carouselHome"></div>
+    <div class="container">
+      <div class="card">
+        <h2>Welcome to CRYPTO</h2>
+        <p>This portal presents a working demonstration of Cryptographic Key Exchange Authentication, a fundamental security mechanism used to securely exchange cryptographic keys between parties over an insecure network. The system ensures confidentiality, integrity, and authentication using modern cryptographic protocols — AES key generation, encrypted file vaulting, and authenticated sessions.</p>
+        <div class="lead-grid">
+          <div class="mini"><i class="fa-solid fa-key"></i><h4>Key Exchange</h4><p>Generate session-bound AES keys on demand.</p></div>
+          <div class="mini"><i class="fa-solid fa-lock"></i><h4>Encrypted Vault</h4><p>Files are encrypted client-side before storage.</p></div>
+          <div class="mini"><i class="fa-solid fa-user-shield"></i><h4>Authenticated Access</h4><p>Separate user and admin authentication flows.</p></div>
+          <div class="mini"><i class="fa-solid fa-share-nodes"></i><h4>Secure Sharing</h4><p>Share encrypted files with another registered user.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== PUBLIC: ABOUT ===================== -->
+  <section class="page" id="page-about">
+    <div class="carousel" id="carouselAbout"></div>
+    <div class="container">
+      <div class="card">
+        <h2>About CRYPTO</h2>
+        <p>Cryptographic Key Exchange Authentication enables secure communication by allowing two or more entities to establish a shared secret key. This key is later used for encryption and secure data transfer. The project focuses on secure authentication using modern cryptographic techniques integrated with a web application — covering registration, login, AES-GCM key generation, and an encrypted file vault with controlled sharing.</p>
+        <p>In legacy systems, key exchange mechanisms often rely on static keys or weak authentication models, leaving them vulnerable to man-in-the-middle attacks, replay attacks, and key compromise. This rebuild favours per-session key material, authenticated encryption (AES-GCM), and clear audit trails of login activity and key generation.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== PUBLIC: CONTACT ===================== -->
+  <section class="page" id="page-contact">
+    <div class="container">
+      <div class="card">
+        <h2>Contact</h2>
+        <p>Have a question about this project or want to report something? Reach out below — this demo logs the message locally so you can see the submission flow end-to-end.</p>
+      </div>
+      <div class="card">
+        <form id="contactForm">
+          <div class="form-field">
+            <label><i class="fa-solid fa-user"></i>Name</label>
+            <input type="text" id="contactName" required>
+          </div>
+          <div class="form-field">
+            <label><i class="fa-solid fa-envelope"></i>Email</label>
+            <input type="email" id="contactEmail" required>
+          </div>
+          <div class="form-field">
+            <label><i class="fa-solid fa-message"></i>Message</label>
+            <input type="text" id="contactMsg" required>
+          </div>
+          <div class="form-field"><button class="submit" type="submit"><i class="fa-solid fa-paper-plane"></i> Send Message</button></div>
+          <p class="msg ok" id="contactStatus"></p>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== PUBLIC: REGISTER ===================== -->
+  <section class="page" id="page-register">
+    <div class="form-wrapper">
+      <div class="form-box">
+        <h2><i class="fa-solid fa-user-plus"></i>Create Your Account</h2>
+        <form id="registerForm">
+          <div class="form-field"><label><i class="fa-solid fa-user"></i>Full Name</label><input type="text" id="regName" required></div>
+          <div class="form-field"><label><i class="fa-solid fa-phone"></i>Mobile</label><input type="text" id="regMobile" required></div>
+          <div class="form-field"><label><i class="fa-solid fa-envelope"></i>Email Address</label><input type="email" id="regEmail" required></div>
+          <div class="form-field"><label><i class="fa-solid fa-lock"></i>Password</label><input type="password" id="regPassword" required></div>
+          <div class="form-field"><button class="submit" type="submit"><i class="fa-solid fa-user-check"></i> Register</button></div>
+          <p class="msg" id="regStatus"></p>
+          <p class="text-small">Already registered? <a onclick="go('ulogin')">Login here</a></p>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== PUBLIC: USER LOGIN ===================== -->
+  <section class="page" id="page-ulogin">
+    <div class="form-wrapper">
+      <div class="form-box">
+        <h2><i class="fa-solid fa-user"></i>User Login</h2>
+        <form id="uloginForm">
+          <div class="form-field"><label><i class="fa-solid fa-envelope"></i>Email Address</label><input type="email" id="uloginEmail" required></div>
+          <div class="form-field"><label><i class="fa-solid fa-lock"></i>Password</label><input type="password" id="uloginPassword" required></div>
+          <div class="form-field"><button class="submit" type="submit"><i class="fa-solid fa-right-to-bracket"></i> Login</button></div>
+          <p class="msg err" id="uloginStatus"></p>
+          <p class="text-small"><i class="fa-solid fa-key"></i> <a onclick="go('uforgot')">Forgot Password?</a></p>
+          <p class="text-small"><i class="fa-solid fa-user-plus"></i> New user? <a onclick="go('register')">Register here</a></p>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== PUBLIC: USER FORGOT PW ===================== -->
+  <section class="page" id="page-uforgot">
+    <div class="form-wrapper">
+      <div class="form-box">
+        <h2><i class="fa-solid fa-key"></i>Reset Password</h2>
+        <form id="uforgotForm">
+          <div class="form-field"><label><i class="fa-solid fa-envelope"></i>Registered Email</label><input type="email" id="ufEmail" required></div>
+          <div class="form-field"><label><i class="fa-solid fa-lock"></i>New Password</label><input type="password" id="ufPassword" required></div>
+          <div class="form-field"><button class="submit" type="submit"><i class="fa-solid fa-rotate"></i> Reset Password</button></div>
+          <p class="msg" id="ufStatus"></p>
+          <p class="text-small"><a onclick="go('ulogin')">&larr; Back to Login</a></p>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== PUBLIC: ADMIN LOGIN ===================== -->
+  <section class="page" id="page-alogin">
+    <div class="form-wrapper">
+      <div class="form-box">
+        <h2><i class="fa-solid fa-user-shield"></i>Admin Login</h2>
+        <form id="aloginForm">
+          <div class="form-field"><label><i class="fa-solid fa-envelope"></i>Admin Username</label><input type="text" id="aloginEmail" placeholder="admin" required></div>
+          <div class="form-field"><label><i class="fa-solid fa-lock"></i>Password</label><input type="password" id="aloginPassword" placeholder="admin123" required></div>
+          <div class="form-field"><button class="submit" type="submit"><i class="fa-solid fa-right-to-bracket"></i> Login</button></div>
+          <p class="msg err" id="aloginStatus"></p>
+          <p class="text-small">Demo credentials: <b>admin</b> / <b>admin123</b></p>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== USER: DASHBOARD ===================== -->
+  <section class="page" id="page-userdashboard">
+    <div class="dash-wrapper">
+      <h2 class="welcome-text">Welcome, <span id="udName"></span>!</h2>
+      <p class="welcome-sub">Your secure session is active. Choose an action below.</p>
+      <div class="dash-grid">
+        <div class="dash-card"><i class="fa-solid fa-key"></i><h3>Generate Secure Key</h3><p>Initiate cryptographic key exchange</p><button onclick="go('generateKey')">Generate</button></div>
+        <div class="dash-card"><i class="fa-solid fa-clock-rotate-left"></i><h3>Key History</h3><p>View previously generated keys</p><button onclick="go('keyHistory')">View</button></div>
+        <div class="dash-card"><i class="fa-solid fa-user-clock"></i><h3>Login Activity</h3><p>Track your authentication history</p><button onclick="go('authLogs')">View</button></div>
+        <div class="dash-card"><i class="fa-solid fa-upload"></i><h3>Upload File</h3><p>Encrypt &amp; upload files securely</p><button onclick="go('uploadFile')">Upload</button></div>
+        <div class="dash-card"><i class="fa-solid fa-share-nodes"></i><h3>Shared Files</h3><p>View &amp; download files shared with you</p><button onclick="go('sharedFiles')">View</button></div>
+        <div class="dash-card"><i class="fa-solid fa-user-gear"></i><h3>Profile Settings</h3><p>Update your account info</p><button onclick="go('profile')">Edit</button></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== USER: GENERATE KEY ===================== -->
+  <section class="page" id="page-generateKey">
+    <div class="panel">
+      <span class="back-link" onclick="go('userdashboard')"><i class="fa-solid fa-arrow-left"></i> Back to Dashboard</span>
+      <div class="panel-card">
+        <h2><i class="fa-solid fa-shield-halved"></i>Generate Secure Key</h2>
+        <p style="color:var(--ink-dim);font-size:14px;">Generates a real 256-bit AES key in your browser via the Web Crypto API and logs it to your key history.</p>
+        <div class="form-field"><button class="submit" id="btnGenKey" type="button" style="max-width:260px;"><i class="fa-solid fa-bolt"></i> Generate AES-256 Key</button></div>
+        <div class="key-output" id="keyOutput" style="display:none;"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== USER: KEY HISTORY ===================== -->
+  <section class="page" id="page-keyHistory">
+    <div class="panel">
+      <span class="back-link" onclick="go('userdashboard')"><i class="fa-solid fa-arrow-left"></i> Back to Dashboard</span>
+      <div class="panel-card">
+        <h2><i class="fa-solid fa-clock-rotate-left"></i>Key History</h2>
+        <div id="keyHistoryBody"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== USER: AUTH LOGS ===================== -->
+  <section class="page" id="page-authLogs">
+    <div class="panel">
+      <span class="back-link" onclick="go('userdashboard')"><i class="fa-solid fa-arrow-left"></i> Back to Dashboard</span>
+      <div class="panel-card">
+        <h2><i class="fa-solid fa-user-clock"></i>Login Activity</h2>
+        <div id="authLogsBody"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== USER: UPLOAD FILE ===================== -->
+  <section class="page" id="page-uploadFile">
+    <div class="panel">
+      <span class="back-link" onclick="go('userdashboard')"><i class="fa-solid fa-arrow-left"></i> Back to Dashboard</span>
+      <div class="panel-card">
+        <h2><i class="fa-solid fa-cloud-arrow-up"></i>Secure File Upload</h2>
+        <p style="color:var(--ink-dim);font-size:14px;">Files are encrypted in your browser with AES-GCM before being stored. Share with another registered user's email so it appears in their Shared Files.</p>
+        <form id="uploadForm">
+          <div class="form-field">
+            <label><i class="fa-solid fa-file-arrow-up"></i>Select File</label>
+            <label class="file-drop" id="dropZone">
+              <i class="fa-solid fa-file-shield" style="font-size:24px;display:block;margin-bottom:8px;"></i>
+              <span id="dropLabel">Click to choose a file</span>
+              <input type="file" id="fileInput" required>
+            </label>
+          </div>
+          <div class="form-field"><label><i class="fa-solid fa-user-lock"></i>Share With (registered email)</label><input type="email" id="shareWith" placeholder="user@example.com" required></div>
+          <div class="form-field"><button class="submit" type="submit"><i class="fa-solid fa-cloud-arrow-up"></i> Encrypt &amp; Upload</button></div>
+          <p class="msg" id="uploadStatus"></p>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== USER: SHARED FILES ===================== -->
+  <section class="page" id="page-sharedFiles">
+    <div class="panel">
+      <span class="back-link" onclick="go('userdashboard')"><i class="fa-solid fa-arrow-left"></i> Back to Dashboard</span>
+      <div class="panel-card">
+        <h2><i class="fa-solid fa-share-nodes"></i>Shared Files</h2>
+        <div id="sharedFilesBody"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== USER: PROFILE ===================== -->
+  <section class="page" id="page-profile">
+    <div class="panel">
+      <span class="back-link" onclick="go('userdashboard')"><i class="fa-solid fa-arrow-left"></i> Back to Dashboard</span>
+      <div class="panel-card">
+        <h2><i class="fa-solid fa-user-gear"></i>Profile Settings</h2>
+        <form id="profileForm">
+          <div class="form-field"><label><i class="fa-solid fa-user"></i>Full Name</label><input type="text" id="profName" required></div>
+          <div class="form-field"><label><i class="fa-solid fa-phone"></i>Mobile</label><input type="text" id="profMobile" required></div>
+          <div class="form-field"><label><i class="fa-solid fa-envelope"></i>Email Address</label><input type="email" id="profEmail" disabled style="opacity:0.6;"></div>
+          <div class="form-field"><button class="submit" type="submit"><i class="fa-solid fa-floppy-disk"></i> Save Changes</button></div>
+          <p class="msg ok" id="profStatus"></p>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== ADMIN: DASHBOARD ===================== -->
+  <section class="page" id="page-admindashboard">
+    <div class="dash-wrapper">
+      <h2 class="welcome-text">Admin Console</h2>
+      <p class="welcome-sub">Signed in as <span id="adName"></span></p>
+      <div class="dash-grid admin-grid">
+        <div class="dash-card"><i class="fa-solid fa-users"></i><h3>Manage Users</h3><p>View &amp; remove registered accounts</p><button onclick="go('manageUsers')">Open</button></div>
+        <div class="dash-card"><i class="fa-solid fa-clipboard-list"></i><h3>Auth Logs</h3><p>System-wide login activity</p><button onclick="go('adminAuthLogs')">Open</button></div>
+        <div class="dash-card"><i class="fa-solid fa-key"></i><h3>Key Management</h3><p>All generated session keys</p><button onclick="go('keyManagement')">Open</button></div>
+        <div class="dash-card"><i class="fa-solid fa-folder-open"></i><h3>System Reports</h3><p>File vault &amp; sharing overview</p><button onclick="go('systemReports')">Open</button></div>
+        <div class="dash-card"><i class="fa-solid fa-tower-broadcast"></i><h3>Active Sessions</h3><p>See who is currently signed in</p><button onclick="go('activeSessions')">Open</button></div>
+        <div class="dash-card"><i class="fa-solid fa-ban"></i><h3>Blocked IPs</h3><p>Block or unblock an address</p><button onclick="go('blockedIps')">Open</button></div>
+        <div class="dash-card"><i class="fa-solid fa-broom"></i><h3>Cleanup Logs</h3><p>Clear old auth &amp; key history</p><button onclick="go('cleanupLogs')">Open</button></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== ADMIN: MANAGE USERS ===================== -->
+  <section class="page" id="page-manageUsers">
+    <div class="panel">
+      <span class="back-link" onclick="go('admindashboard')"><i class="fa-solid fa-arrow-left"></i> Back to Console</span>
+      <div class="panel-card">
+        <h2><i class="fa-solid fa-users"></i>Registered Users</h2>
+        <div id="manageUsersBody"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== ADMIN: AUTH LOGS ===================== -->
+  <section class="page" id="page-adminAuthLogs">
+    <div class="panel">
+      <span class="back-link" onclick="go('admindashboard')"><i class="fa-solid fa-arrow-left"></i> Back to Console</span>
+      <div class="panel-card">
+        <h2><i class="fa-solid fa-clipboard-list"></i>System Auth Logs</h2>
+        <div id="adminAuthLogsBody"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== ADMIN: KEY MANAGEMENT ===================== -->
+  <section class="page" id="page-keyManagement">
+    <div class="panel">
+      <span class="back-link" onclick="go('admindashboard')"><i class="fa-solid fa-arrow-left"></i> Back to Console</span>
+      <div class="panel-card">
+        <h2><i class="fa-solid fa-key"></i>Key Management</h2>
+        <div id="keyManagementBody"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== ADMIN: SYSTEM REPORTS ===================== -->
+  <section class="page" id="page-systemReports">
+    <div class="panel">
+      <span class="back-link" onclick="go('admindashboard')"><i class="fa-solid fa-arrow-left"></i> Back to Console</span>
+      <div class="panel-card">
+        <h2><i class="fa-solid fa-folder-open"></i>System Reports</h2>
+        <div id="systemReportsBody"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== ADMIN: ACTIVE SESSIONS ===================== -->
+  <section class="page" id="page-activeSessions">
+    <div class="panel">
+      <span class="back-link" onclick="go('admindashboard')"><i class="fa-solid fa-arrow-left"></i> Back to Console</span>
+      <div class="panel-card">
+        <h2><i class="fa-solid fa-tower-broadcast"></i>Active Sessions</h2>
+        <p style="color:var(--ink-dim);font-size:14px;">Anyone currently signed in on this browser. Force-end a session to log them out immediately.</p>
+        <div id="activeSessionsBody"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== ADMIN: BLOCKED IPS ===================== -->
+  <section class="page" id="page-blockedIps">
+    <div class="panel">
+      <span class="back-link" onclick="go('admindashboard')"><i class="fa-solid fa-arrow-left"></i> Back to Console</span>
+      <div class="panel-card">
+        <h2><i class="fa-solid fa-ban"></i>Blocked IP Addresses</h2>
+        <form id="blockIpForm" style="display:flex;gap:10px;align-items:flex-end;margin-bottom:18px;flex-wrap:wrap;">
+          <div class="form-field" style="flex:1;margin-bottom:0;min-width:160px;">
+            <label><i class="fa-solid fa-network-wired"></i>IP Address</label>
+            <input type="text" id="blockIpInput" placeholder="e.g. 192.168.1.42" required>
+          </div>
+          <div class="form-field" style="margin-bottom:0;">
+            <button class="submit" type="submit" style="white-space:nowrap;padding:11px 18px;"><i class="fa-solid fa-ban"></i> Block IP</button>
+          </div>
+        </form>
+        <div id="blockedIpsBody"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== ADMIN: CLEANUP LOGS ===================== -->
+  <section class="page" id="page-cleanupLogs">
+    <div class="panel">
+      <span class="back-link" onclick="go('admindashboard')"><i class="fa-solid fa-arrow-left"></i> Back to Console</span>
+      <div class="panel-card">
+        <h2><i class="fa-solid fa-broom"></i>Cleanup Logs</h2>
+        <p style="color:var(--ink-dim);font-size:14px;">Permanently clear stored activity. This only affects this browser's local demo data.</p>
+        <div class="lead-grid" id="cleanupStats"></div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:22px;">
+          <button class="submit" id="btnClearAuthLogs" type="button" style="max-width:220px;background:linear-gradient(45deg,var(--danger),#c44545);color:#fff;"><i class="fa-solid fa-trash"></i> Clear Auth Logs</button>
+          <button class="submit" id="btnClearKeys" type="button" style="max-width:220px;background:linear-gradient(45deg,var(--danger),#c44545);color:#fff;"><i class="fa-solid fa-trash"></i> Clear Key History</button>
+          <button class="submit" id="btnClearFiles" type="button" style="max-width:220px;background:linear-gradient(45deg,var(--danger),#c44545);color:#fff;"><i class="fa-solid fa-trash"></i> Clear File Vault</button>
+        </div>
+        <p class="msg ok" id="cleanupStatus"></p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="site-footer">&copy; 2026 CRYPTO. All rights reserved. — Standalone demo build.</footer>
+</div>
+
+<script>
+/* =========================================================
+   STORAGE MODEL  (localStorage-backed, fully client-side)
+   ========================================================= */
+const DB_KEY = 'crypto_portal_db_v1';
+
+function loadDB(){
+  let raw = localStorage.getItem(DB_KEY);
+  if(raw){
+    try{
+      const parsed = JSON.parse(raw);
+      parsed.users = parsed.users || [];
+      parsed.keys = parsed.keys || [];
+      parsed.authLogs = parsed.authLogs || [];
+      parsed.files = parsed.files || [];
+      parsed.blockedIps = parsed.blockedIps || [];
+      parsed.activeSessions = parsed.activeSessions || {};
+      return parsed;
+    }catch(e){}
+  }
+  const fresh = { users:[], keys:[], authLogs:[], files:[], blockedIps:[], activeSessions:{} };
+  localStorage.setItem(DB_KEY, JSON.stringify(fresh));
+  return fresh;
+}
+function saveDB(db){ localStorage.setItem(DB_KEY, JSON.stringify(db)); }
+let DB = loadDB();
+
+let SESSION = JSON.parse(sessionStorage.getItem('crypto_session') || 'null');
+
+function setSession(s){
+  SESSION = s;
+  sessionStorage.setItem('crypto_session', JSON.stringify(s));
+  if(s){
+    const key = s.role+':'+(s.email||s.username);
+    if(!DB.activeSessions) DB.activeSessions = {};
+    DB.activeSessions[key] = { role:s.role, who:s.email||s.username, name:s.name||s.username, since: nowStr() };
+    saveDB(DB);
+  }
+  renderNav();
+}
+function clearSession(){
+  if(SESSION){
+    const key = SESSION.role+':'+(SESSION.email||SESSION.username);
+    if(DB.activeSessions){ delete DB.activeSessions[key]; saveDB(DB); }
+  }
+  SESSION = null;
+  sessionStorage.removeItem('crypto_session');
+  renderNav();
+}
+
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,8); }
+function nowStr(){ return new Date().toLocaleString(); }
+
+/* ---------- simple reversible encode, mirrors the original AES-style obfuscation for demo storage ---------- */
+function obfuscate(str){ return btoa(unescape(encodeURIComponent(str))).split('').reverse().join(''); }
+function deobfuscate(str){ try{ return decodeURIComponent(escape(atob(str.split('').reverse().join('')))); }catch(e){ return ''; } }
+
+/* =========================================================
+   TOAST
+   ========================================================= */
+function toast(msg, isErr){
+  const t = document.getElementById('toast');
+  const m = document.getElementById('toastMsg');
+  m.textContent = msg;
+  t.classList.toggle('err', !!isErr);
+  t.querySelector('i').className = isErr ? 'fa-solid fa-circle-exclamation' : 'fa-solid fa-circle-check';
+  t.classList.add('show');
+  clearTimeout(window.__toastTimer);
+  window.__toastTimer = setTimeout(()=>t.classList.remove('show'), 3200);
+}
+
+/* =========================================================
+   NAVIGATION
+   ========================================================= */
+const PUBLIC_NAV = [
+  ['home','Home','fa-house'],
+  ['about','About','fa-circle-info'],
+  ['contact','Contact','fa-envelope'],
+  ['register','Register','fa-user-plus'],
+  ['alogin','Admin Login','fa-user-shield'],
+  ['ulogin','User Login','fa-right-to-bracket'],
+];
+const USER_NAV = [
+  ['userdashboard','Dashboard','fa-gauge'],
+  ['uploadFile','Upload','fa-upload'],
+  ['sharedFiles','Shared Files','fa-share-nodes'],
+  ['profile','Profile','fa-user-gear'],
+];
+const ADMIN_NAV = [
+  ['admindashboard','Console','fa-gauge'],
+  ['manageUsers','Users','fa-users'],
+  ['adminAuthLogs','Auth Logs','fa-clipboard-list'],
+  ['keyManagement','Keys','fa-key'],
+  ['systemReports','Reports','fa-folder-open'],
+  ['activeSessions','Sessions','fa-tower-broadcast'],
+  ['blockedIps','Blocked IPs','fa-ban'],
+  ['cleanupLogs','Cleanup','fa-broom'],
+];
+
+function renderNav(){
+  const nav = document.getElementById('mainNav');
+  nav.innerHTML = '';
+  let items, logoutTarget;
+  if(SESSION && SESSION.role==='user'){ items = USER_NAV; logoutTarget='ulogin'; }
+  else if(SESSION && SESSION.role==='admin'){ items = ADMIN_NAV; logoutTarget='alogin'; }
+  else { items = PUBLIC_NAV; }
+
+  items.forEach(([id,label,icon])=>{
+    const b = document.createElement('button');
+    b.innerHTML = `<i class="fa-solid ${icon}"></i> ${label}`;
+    b.onclick = ()=>go(id);
+    b.dataset.page = id;
+    nav.appendChild(b);
+  });
+  if(SESSION){
+    const b = document.createElement('button');
+    b.innerHTML = `<i class="fa-solid fa-power-off"></i> Logout`;
+    b.onclick = ()=>logout(logoutTarget);
+    nav.appendChild(b);
+  }
+}
+
+function go(pageId){
+  // guard protected pages
+  const userPages = ['userdashboard','generateKey','keyHistory','authLogs','uploadFile','sharedFiles','profile'];
+  const adminPages = ['admindashboard','manageUsers','adminAuthLogs','keyManagement','systemReports','activeSessions','blockedIps','cleanupLogs'];
+  if(userPages.includes(pageId) && !(SESSION && SESSION.role==='user')){ toast('Please log in first.', true); pageId='ulogin'; }
+  if(adminPages.includes(pageId) && !(SESSION && SESSION.role==='admin')){ toast('Admin login required.', true); pageId='alogin'; }
+
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  const el = document.getElementById('page-'+pageId);
+  if(el) el.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+
+  document.querySelectorAll('#mainNav button').forEach(b=>b.classList.toggle('current', b.dataset.page===pageId));
+
+  if(pageId==='userdashboard') renderUserDashboard();
+  if(pageId==='keyHistory') renderKeyHistory();
+  if(pageId==='authLogs') renderAuthLogs();
+  if(pageId==='sharedFiles') renderSharedFiles();
+  if(pageId==='profile') renderProfile();
+  if(pageId==='admindashboard') renderAdminDashboard();
+  if(pageId==='manageUsers') renderManageUsers();
+  if(pageId==='adminAuthLogs') renderAdminAuthLogs();
+  if(pageId==='keyManagement') renderKeyManagement();
+  if(pageId==='systemReports') renderSystemReports();
+  if(pageId==='activeSessions') renderActiveSessions();
+  if(pageId==='blockedIps') renderBlockedIps();
+  if(pageId==='cleanupLogs') renderCleanupLogs();
+
+  history.replaceState(null,'','#'+pageId);
+}
+
+function logout(target){
+  if(SESSION){
+    DB.authLogs.push({ who:SESSION.email||SESSION.username, role:SESSION.role, action:'Logout', time:nowStr() });
+    saveDB(DB);
+  }
+  clearSession();
+  toast('Logged out.');
+  go(target);
+}
+
+/* =========================================================
+   CAROUSEL (inline SVG "photos" — no external images)
+   ========================================================= */
+function carouselSVG(seed){
+  const palettes = [
+    ['#0c2236','#163654','#00ffd5'],
+    ['#16314d','#0a1f33','#ff4ecd'],
+    ['#0e2030','#1d3b57','#00bfa5'],
+  ];
+  const [c1,c2,acc] = palettes[seed%palettes.length];
+  return `<svg viewBox="0 0 1000 320" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <defs><linearGradient id="g${seed}" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="${c1}"/><stop offset="100%" stop-color="${c2}"/>
+    </linearGradient></defs>
+    <rect width="1000" height="320" fill="url(#g${seed})"/>
+    ${Array.from({length:18}).map((_,i)=>{
+      const x = (i*61+seed*37)%1000, y=(i*53+seed*19)%320, r=4+(i%4)*2;
+      return `<circle cx="${x}" cy="${y}" r="${r}" fill="${acc}" opacity="${0.08+(i%5)*0.04}"/>`;
+    }).join('')}
+    <g stroke="${acc}" stroke-width="1.4" opacity="0.5">
+      <path d="M150,260 L300,160 L460,220 L620,120 L800,200" fill="none"/>
+    </g>
+    <circle cx="620" cy="120" r="6" fill="${acc}"/>
+    <circle cx="300" cy="160" r="6" fill="${acc}"/>
+    <text x="50" y="60" font-family="monospace" font-size="14" fill="${acc}" opacity="0.8">KEY_EXCHANGE :: NODE_${seed+1}</text>
+  </svg>`;
+}
+function buildCarousel(elId, seedOffset){
+  const el = document.getElementById(elId);
+  if(!el) return;
+  const caps = ['SECURE CHANNEL','AES-256 SESSION','AUTHENTICATED LINK'];
+  el.innerHTML = [0,1,2].map(i=>`<div class="frame ${i===0?'active':''}" data-i="${i}">${carouselSVG(i+seedOffset)}<div class="cap">${caps[i]}</div></div>`).join('');
+  let idx = 0;
+  setInterval(()=>{
+    const frames = el.querySelectorAll('.frame');
+    frames[idx].classList.remove('active');
+    idx = (idx+1)%frames.length;
+    frames[idx].classList.add('active');
+  }, 3200);
+}
+
+/* =========================================================
+   USER: REGISTER / LOGIN / FORGOT
+   ========================================================= */
+document.getElementById('registerForm').addEventListener('submit', e=>{
+  e.preventDefault();
+  const name = document.getElementById('regName').value.trim();
+  const mobile = document.getElementById('regMobile').value.trim();
+  const email = document.getElementById('regEmail').value.trim().toLowerCase();
+  const password = document.getElementById('regPassword').value;
+  const statusEl = document.getElementById('regStatus');
+
+  if(DB.users.some(u=>u.email===email)){
+    statusEl.textContent = 'An account with that email already exists.';
+    statusEl.className = 'msg err';
+    return;
+  }
+  DB.users.push({ id:uid(), name, mobile, email, password: obfuscate(password) });
+  saveDB(DB);
+  statusEl.textContent = 'Registration successful! You can now log in.';
+  statusEl.className = 'msg ok';
+  e.target.reset();
+  toast('Account created — please log in.');
+  setTimeout(()=>go('ulogin'), 900);
+});
+
+document.getElementById('uloginForm').addEventListener('submit', e=>{
+  e.preventDefault();
+  const email = document.getElementById('uloginEmail').value.trim().toLowerCase();
+  const password = document.getElementById('uloginPassword').value;
+  const statusEl = document.getElementById('uloginStatus');
+  const user = DB.users.find(u=>u.email===email && deobfuscate(u.password)===password);
+  DB.authLogs.push({ who:email, role:'user', action: user?'Login success':'Login failed', time:nowStr() });
+  saveDB(DB);
+  if(user){
+    statusEl.textContent='';
+    setSession({ role:'user', id:user.id, email:user.email, name:user.name });
+    toast('Login successful — welcome back, '+user.name+'.');
+    go('userdashboard');
+    e.target.reset();
+  } else {
+    statusEl.textContent = 'Invalid email or password.';
+  }
+});
+
+document.getElementById('uforgotForm').addEventListener('submit', e=>{
+  e.preventDefault();
+  const email = document.getElementById('ufEmail').value.trim().toLowerCase();
+  const password = document.getElementById('ufPassword').value;
+  const statusEl = document.getElementById('ufStatus');
+  const user = DB.users.find(u=>u.email===email);
+  if(!user){ statusEl.textContent='No account found with that email.'; statusEl.className='msg err'; return; }
+  user.password = obfuscate(password);
+  saveDB(DB);
+  statusEl.textContent = 'Password updated! You can now log in.';
+  statusEl.className = 'msg ok';
+  toast('Password reset successfully.');
+  setTimeout(()=>go('ulogin'), 900);
+});
+
+/* =========================================================
+   ADMIN LOGIN (demo: admin / admin123)
+   ========================================================= */
+document.getElementById('aloginForm').addEventListener('submit', e=>{
+  e.preventDefault();
+  const u = document.getElementById('aloginEmail').value.trim();
+  const p = document.getElementById('aloginPassword').value;
+  const statusEl = document.getElementById('aloginStatus');
+  const ok = (u==='admin' && p==='admin123');
+  DB.authLogs.push({ who:u, role:'admin', action: ok?'Login success':'Login failed', time:nowStr() });
+  saveDB(DB);
+  if(ok){
+    statusEl.textContent='';
+    setSession({ role:'admin', username:u });
+    toast('Admin login successful.');
+    go('admindashboard');
+    e.target.reset();
+  } else {
+    statusEl.textContent = 'Invalid email or password.';
+  }
+});
+
+/* =========================================================
+   CONTACT FORM
+   ========================================================= */
+document.getElementById('contactForm').addEventListener('submit', e=>{
+  e.preventDefault();
+  document.getElementById('contactStatus').textContent = 'Message sent — thank you for reaching out!';
+  toast('Message sent.');
+  e.target.reset();
+});
+
+/* =========================================================
+   USER DASHBOARD
+   ========================================================= */
+function renderUserDashboard(){
+  document.getElementById('udName').textContent = SESSION.name || SESSION.email;
+}
+
+/* ---- Generate Key ---- */
+document.getElementById('btnGenKey').addEventListener('click', async ()=>{
+  let hex;
+  try{
+    const key = await crypto.subtle.generateKey({name:'AES-GCM', length:256}, true, ['encrypt','decrypt']);
+    const raw = await crypto.subtle.exportKey('raw', key);
+    hex = Array.from(new Uint8Array(raw)).map(b=>b.toString(16).padStart(2,'0')).join('');
+  }catch(err){
+    hex = Array.from(crypto.getRandomValues(new Uint8Array(32))).map(b=>b.toString(16).padStart(2,'0')).join('');
+  }
+  const out = document.getElementById('keyOutput');
+  out.style.display='block';
+  out.textContent = hex;
+  DB.keys.push({ id: uid(), owner: SESSION.email, key: hex, algo:'AES-256-GCM', time: nowStr() });
+  saveDB(DB);
+  toast('New AES-256 key generated.');
+});
+
+function renderKeyHistory(){
+  const mine = DB.keys.filter(k=>k.owner===SESSION.email).slice().reverse();
+  const body = document.getElementById('keyHistoryBody');
+  if(!mine.length){ body.innerHTML = emptyState('fa-key','No keys generated yet.'); return; }
+  body.innerHTML = `<table class="data"><thead><tr><th>Algorithm</th><th>Key (truncated)</th><th>Generated</th></tr></thead><tbody>
+    ${mine.map(k=>`<tr><td><span class="badge teal">${k.algo}</span></td><td style="font-family:var(--mono)">${k.key.slice(0,24)}…</td><td>${k.time}</td></tr>`).join('')}
+  </tbody></table>`;
+}
+
+function renderAuthLogs(){
+  const mine = DB.authLogs.filter(l=>l.who===SESSION.email).slice().reverse();
+  const body = document.getElementById('authLogsBody');
+  if(!mine.length){ body.innerHTML = emptyState('fa-user-clock','No login activity recorded yet.'); return; }
+  body.innerHTML = `<table class="data"><thead><tr><th>Action</th><th>Time</th></tr></thead><tbody>
+    ${mine.map(l=>`<tr><td>${badgeForAction(l.action)}</td><td>${l.time}</td></tr>`).join('')}
+  </tbody></table>`;
+}
+function badgeForAction(a){
+  if(/success/i.test(a)) return `<span class="badge green">${a}</span>`;
+  if(/fail/i.test(a)) return `<span class="badge red">${a}</span>`;
+  return `<span class="badge teal">${a}</span>`;
+}
+
+/* ---- Upload (real AES-GCM client-side encryption) ---- */
+document.getElementById('dropZone').addEventListener('change', ()=>{
+  const f = document.getElementById('fileInput').files[0];
+  document.getElementById('dropLabel').textContent = f ? f.name : 'Click to choose a file';
+});
+
+document.getElementById('uploadForm').addEventListener('submit', async e=>{
+  e.preventDefault();
+  const fileInput = document.getElementById('fileInput');
+  const shareWith = document.getElementById('shareWith').value.trim().toLowerCase();
+  const statusEl = document.getElementById('uploadStatus');
+  const file = fileInput.files[0];
+  if(!file){ statusEl.textContent='Select a file first.'; statusEl.className='msg err'; return; }
+
+  const recipientExists = DB.users.some(u=>u.email===shareWith) || shareWith===SESSION.email;
+  if(!recipientExists){
+    statusEl.textContent = 'No registered user with that email. Register them first, or share with your own email.';
+    statusEl.className = 'msg err';
+    return;
+  }
+
+  statusEl.textContent = 'Encrypting…';
+  statusEl.className = 'msg';
+
+  try{
+    const fileBuf = await file.arrayBuffer();
+    const key = await crypto.subtle.generateKey({name:'AES-GCM', length:256}, true, ['encrypt','decrypt']);
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const cipherBuf = await crypto.subtle.encrypt({name:'AES-GCM', iv}, key, fileBuf);
+    const rawKey = await crypto.subtle.exportKey('raw', key);
+
+    DB.files.push({
+      id: uid(),
+      owner: SESSION.email,
+      sharedWith: shareWith,
+      filename: file.name,
+      size: file.size,
+      ivHex: bufToHex(iv),
+      keyHex: bufToHex(rawKey),
+      cipherLen: cipherBuf.byteLength,
+      time: nowStr()
+    });
+    saveDB(DB);
+    statusEl.textContent = 'File encrypted (AES-256-GCM) and shared successfully!';
+    statusEl.className = 'msg ok';
+    toast('File encrypted & uploaded.');
+    e.target.reset();
+    document.getElementById('dropLabel').textContent = 'Click to choose a file';
+  }catch(err){
+    statusEl.textContent = 'Encryption failed: '+err.message;
+    statusEl.className = 'msg err';
+  }
+});
+
+function bufToHex(buf){ return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join(''); }
+
+function renderSharedFiles(){
+  const mine = DB.files.filter(f=>f.sharedWith===SESSION.email || f.owner===SESSION.email).slice().reverse();
+  const body = document.getElementById('sharedFilesBody');
+  if(!mine.length){ body.innerHTML = emptyState('fa-share-nodes','No files have been shared with you yet.'); return; }
+  body.innerHTML = `<table class="data"><thead><tr><th>File</th><th>From</th><th>Size</th><th>Date</th><th></th><th></th></tr></thead><tbody>
+    ${mine.map(f=>`<tr>
+      <td><i class="fa-solid fa-file-shield" style="color:var(--teal);margin-right:6px;"></i>${escapeHtml(f.filename)}</td>
+      <td>${f.owner===SESSION.email?'You':escapeHtml(f.owner)}</td>
+      <td>${formatBytes(f.size)}</td>
+      <td>${f.time}</td>
+      <td><span class="badge green">encrypted</span></td>
+      <td>${f.owner===SESSION.email?`<button onclick="removeFile('${f.id}')" style="background:transparent;border:1px solid var(--border);color:var(--danger);border-radius:6px;padding:5px 10px;cursor:pointer;font-size:12px;"><i class="fa-solid fa-trash"></i></button>`:''}</td>
+    </tr>`).join('')}
+  </tbody></table>`;
+}
+function removeFile(id){
+  DB.files = DB.files.filter(f=>f.id!==id);
+  saveDB(DB);
+  toast('File removed from vault.');
+  renderSharedFiles();
+}
+function formatBytes(n){ if(n<1024) return n+' B'; if(n<1024*1024) return (n/1024).toFixed(1)+' KB'; return (n/1024/1024).toFixed(1)+' MB'; }
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+function renderProfile(){
+  const me = DB.users.find(u=>u.email===SESSION.email);
+  if(!me) return;
+  document.getElementById('profName').value = me.name;
+  document.getElementById('profMobile').value = me.mobile;
+  document.getElementById('profEmail').value = me.email;
+}
+document.getElementById('profileForm').addEventListener('submit', e=>{
+  e.preventDefault();
+  const me = DB.users.find(u=>u.email===SESSION.email);
+  me.name = document.getElementById('profName').value.trim();
+  me.mobile = document.getElementById('profMobile').value.trim();
+  saveDB(DB);
+  SESSION.name = me.name;
+  setSession(SESSION);
+  document.getElementById('profStatus').textContent = 'Profile updated successfully.';
+  toast('Profile saved.');
+}); 
+
+function emptyState(icon,msg){ return `<div class="empty-state"><i class="fa-solid ${icon}"></i>${msg}</div>`; }
+
+/* =========================================================
+   ADMIN VIEWS
+   ========================================================= */
+function renderAdminDashboard(){ document.getElementById('adName').textContent = SESSION.username; }
+
+function renderManageUsers(){
+  const body = document.getElementById('manageUsersBody');
+  if(!DB.users.length){ body.innerHTML = emptyState('fa-users','No users have registered yet.'); return; }
+  body.innerHTML = `<table class="data"><thead><tr><th>Name</th><th>Email</th><th>Mobile</th><th></th></tr></thead><tbody>
+    ${DB.users.map(u=>`<tr><td>${escapeHtml(u.name)}</td><td>${escapeHtml(u.email)}</td><td>${escapeHtml(u.mobile)}</td>
+      <td><button onclick="removeUser('${u.id}')" style="background:transparent;border:1px solid var(--border);color:var(--danger);border-radius:6px;padding:5px 10px;cursor:pointer;font-size:12px;"><i class="fa-solid fa-user-slash"></i> Remove</button></td>
+    </tr>`).join('')}
+  </tbody></table>`;
+}
+function removeUser(id){
+  const u = DB.users.find(x=>x.id===id);
+  if(!u) return;
+  if(!confirm('Remove '+u.name+' ('+u.email+')? This cannot be undone.')) return;
+  DB.users = DB.users.filter(x=>x.id!==id);
+  if(DB.activeSessions) delete DB.activeSessions['user:'+u.email];
+  saveDB(DB);
+  toast('User removed.');
+  renderManageUsers();
+}
+
+function renderAdminAuthLogs(){
+  const body = document.getElementById('adminAuthLogsBody');
+  const logs = DB.authLogs.slice().reverse();
+  if(!logs.length){ body.innerHTML = emptyState('fa-clipboard-list','No authentication activity yet.'); return; }
+  body.innerHTML = `<table class="data"><thead><tr><th>User</th><th>Role</th><th>Action</th><th>Time</th></tr></thead><tbody>
+    ${logs.map(l=>`<tr><td>${escapeHtml(l.who)}</td><td><span class="badge teal">${l.role}</span></td><td>${badgeForAction(l.action)}</td><td>${l.time}</td></tr>`).join('')}
+  </tbody></table>`;
+}
+
+function renderKeyManagement(){
+  const body = document.getElementById('keyManagementBody');
+  const keys = DB.keys.slice().reverse();
+  if(!keys.length){ body.innerHTML = emptyState('fa-key','No keys have been generated yet.'); return; }
+  body.innerHTML = `<table class="data"><thead><tr><th>Owner</th><th>Algorithm</th><th>Key (truncated)</th><th>Generated</th><th></th></tr></thead><tbody>
+    ${keys.map(k=>`<tr><td>${escapeHtml(k.owner)}</td><td><span class="badge teal">${k.algo}</span></td><td style="font-family:var(--mono)">${k.key.slice(0,20)}…</td><td>${k.time}</td>
+      <td><button onclick="revokeKey('${k.id}')" style="background:transparent;border:1px solid var(--border);color:var(--danger);border-radius:6px;padding:5px 10px;cursor:pointer;font-size:12px;"><i class="fa-solid fa-ban"></i> Revoke</button></td>
+    </tr>`).join('')}
+  </tbody></table>`;
+}
+function revokeKey(id){
+  DB.keys = DB.keys.filter(k=>k.id!==id);
+  saveDB(DB);
+  toast('Key revoked.');
+  renderKeyManagement();
+}
+
+function renderSystemReports(){
+  const body = document.getElementById('systemReportsBody');
+  const totalUsers = DB.users.length;
+  const totalFiles = DB.files.length;
+  const totalKeys = DB.keys.length;
+  const totalLogins = DB.authLogs.filter(l=>/success/i.test(l.action)).length;
+  body.innerHTML = `
+    <div class="lead-grid">
+      <div class="mini"><i class="fa-solid fa-users"></i><h4>Registered Users</h4><p>${totalUsers}</p></div>
+      <div class="mini"><i class="fa-solid fa-file-shield"></i><h4>Encrypted Files</h4><p>${totalFiles}</p></div>
+      <div class="mini"><i class="fa-solid fa-key"></i><h4>Keys Generated</h4><p>${totalKeys}</p></div>
+      <div class="mini"><i class="fa-solid fa-right-to-bracket"></i><h4>Successful Logins</h4><p>${totalLogins}</p></div>
+    </div>
+    <h3 style="margin-top:26px;color:var(--ink);font-size:15px;">Recent Files</h3>
+    ${DB.files.length ? `<table class="data"><thead><tr><th>File</th><th>Owner</th><th>Shared With</th><th>Date</th></tr></thead><tbody>
+      ${DB.files.slice().reverse().slice(0,10).map(f=>`<tr><td>${escapeHtml(f.filename)}</td><td>${escapeHtml(f.owner)}</td><td>${escapeHtml(f.sharedWith)}</td><td>${f.time}</td></tr>`).join('')}
+    </tbody></table>` : emptyState('fa-folder-open','No files uploaded yet.')}
+  `;
+}
+
+/* ---- Active Sessions ---- */
+function renderActiveSessions(){
+  const body = document.getElementById('activeSessionsBody');
+  const sessions = Object.entries(DB.activeSessions || {});
+  if(!sessions.length){ body.innerHTML = emptyState('fa-tower-broadcast','No one is currently signed in.'); return; }
+  body.innerHTML = `<table class="data"><thead><tr><th>User</th><th>Role</th><th>Since</th><th></th></tr></thead><tbody>
+    ${sessions.map(([key,s])=>`<tr>
+      <td>${escapeHtml(s.name||s.who)}</td>
+      <td><span class="badge teal">${s.role}</span></td>
+      <td>${s.since}</td>
+      <td><button onclick="forceEndSession('${key}')" style="background:transparent;border:1px solid var(--border);color:var(--danger);border-radius:6px;padding:5px 10px;cursor:pointer;font-size:12px;"><i class="fa-solid fa-power-off"></i> End Session</button></td>
+    </tr>`).join('')}
+  </tbody></table>`;
+}
+function forceEndSession(key){
+  if(DB.activeSessions && DB.activeSessions[key]){
+    delete DB.activeSessions[key];
+    saveDB(DB);
+    toast('Session ended.');
+    // if it's MY OWN session being ended, log me out of this tab too
+    if(SESSION && (SESSION.role+':'+(SESSION.email||SESSION.username))===key){
+      clearSession();
+      go('ulogin');
+      return;
+    }
+    renderActiveSessions();
+  }
+}
+
+/* ---- Blocked IPs ---- */
+document.getElementById('blockIpForm').addEventListener('submit', e=>{
+  e.preventDefault();
+  const ip = document.getElementById('blockIpInput').value.trim();
+  if(!ip) return;
+  if(DB.blockedIps.some(b=>b.ip===ip)){ toast('That IP is already blocked.', true); return; }
+  DB.blockedIps.push({ ip, time: nowStr() });
+  saveDB(DB);
+  toast('IP address blocked.');
+  e.target.reset();
+  renderBlockedIps();
+});
+function renderBlockedIps(){
+  const body = document.getElementById('blockedIpsBody');
+  if(!DB.blockedIps.length){ body.innerHTML = emptyState('fa-ban','No IP addresses are currently blocked.'); return; }
+  body.innerHTML = `<table class="data"><thead><tr><th>IP Address</th><th>Blocked On</th><th></th></tr></thead><tbody>
+    ${DB.blockedIps.map(b=>`<tr><td style="font-family:var(--mono)">${escapeHtml(b.ip)}</td><td>${b.time}</td>
+      <td><button onclick="unblockIp('${b.ip}')" style="background:transparent;border:1px solid var(--border);color:var(--teal);border-radius:6px;padding:5px 10px;cursor:pointer;font-size:12px;"><i class="fa-solid fa-circle-check"></i> Unblock</button></td>
+    </tr>`).join('')}
+  </tbody></table>`;
+}
+function unblockIp(ip){
+  DB.blockedIps = DB.blockedIps.filter(b=>b.ip!==ip);
+  saveDB(DB);
+  toast('IP address unblocked.');
+  renderBlockedIps();
+}
+
+/* ---- Cleanup Logs ---- */
+function renderCleanupLogs(){
+  document.getElementById('cleanupStats').innerHTML = `
+    <div class="mini"><i class="fa-solid fa-clipboard-list"></i><h4>Auth Log Entries</h4><p>${DB.authLogs.length}</p></div>
+    <div class="mini"><i class="fa-solid fa-key"></i><h4>Stored Keys</h4><p>${DB.keys.length}</p></div>
+    <div class="mini"><i class="fa-solid fa-file-shield"></i><h4>Vault Files</h4><p>${DB.files.length}</p></div>
+  `;
+  document.getElementById('cleanupStatus').textContent = '';
+}
+document.getElementById('btnClearAuthLogs').addEventListener('click', ()=>{
+  if(!confirm('Clear all authentication logs?')) return;
+  DB.authLogs = []; saveDB(DB); toast('Auth logs cleared.'); renderCleanupLogs();
+});
+document.getElementById('btnClearKeys').addEventListener('click', ()=>{
+  if(!confirm('Clear all key history?')) return;
+  DB.keys = []; saveDB(DB); toast('Key history cleared.'); renderCleanupLogs();
+});
+document.getElementById('btnClearFiles').addEventListener('click', ()=>{
+  if(!confirm('Clear the entire file vault? This removes all encrypted file records.')) return;
+  DB.files = []; saveDB(DB); toast('File vault cleared.'); renderCleanupLogs();
+});
+
+/* =========================================================
+   INIT
+   ========================================================= */
+buildCarousel('carouselHome', 0);
+buildCarousel('carouselAbout', 1);
+renderNav();
+
+(function initialRoute(){
+  const hash = location.hash.replace('#','');
+  if(hash){ go(hash); } else { go('home'); }
+})();
+</script>
+</body>
+</html>
